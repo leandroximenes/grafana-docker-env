@@ -8,6 +8,7 @@ ARG NO_PROXY
 ENV HTTPS_PROXY ${HTTP_PROXY}
 ENV HTTP_PROXY ${HTTP_PROXY}
 ENV FTP_PROXY ${HTTP_PROXY}
+ENV NO_PROXY ${NO_PROXY}
 
 # Switch to root user to perform installations
 USER root
