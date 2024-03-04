@@ -21,10 +21,5 @@ RUN if [ ! -z "$HTTP_PROXY" ]; then \
 
 # Update and install necessary packages
 RUN apt update && apt upgrade -y && \
-    apt install -y nano sudo nginx
+    apt install -y nano sudo
 
-EXPOSE 8080 3000
-
-CMD ["nginx", "-g", "daemon off;"]
-
-# TODO: Nginx is not working in port 80
