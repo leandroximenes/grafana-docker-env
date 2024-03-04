@@ -1,0 +1,29 @@
+FROM grafana/grafana:main-ubuntu
+
+# proxy
+# TODO: create a file to set proxy
+ARG HTTP_PROXY
+ARG NO_PROXY
+ARG NODE_VERSION=18
+
+ENV HTTPS_PROXY ${HTTP_PROXY}
+ENV HTTP_PROXY ${HTTP_PROXY}
+ENV FTP_PROXY ${HTTP_PROXY}
+USER root
+
+RUN if [ ! -z "$HTTP_PROXY" ] ; then echo "Acquire::https::Proxy \"$HTTP_PROXY\";" >> /etc/apt/apt.conf ; fi
+RUN if [ ! -z "$HTTP_PROXY" ] ; then echo "Acquire::http::Proxy \"$HTTP_PROXY\";" >> /etc/apt/apt.conf ; fi
+RUN if [ ! -z "$HTTP_PROXY" ] ; then echo "Acquire::ftp::Proxy \"$HTTP_PROXY\";" >> /etc/apt/apt.conf ; fi
+# RUN if [ ! -z "$HTTP_PROXY" ] ; then pear config-set http_proxy ${HTTP_PROXY} ; fi
+
+# update and instalations
+RUN apt update && apt upgrade -y
+RUN apt install -y nano sudo
+
+# install node
+RUN curl -sLS https://deb.nodesource.com/setup_$NODE_VERSION.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g npm 
+
+# install Angular
+RUN npm install -g @angular/cli
