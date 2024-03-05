@@ -5,9 +5,6 @@ services:
     container_name: grafana
     build: 
       context: ./grafana
-      args:
-        HTTP_PROXY: ${HTTP_PROXY}
-        NO_PROXY: ${NO_PROXY}
     user: '0'
     ports:
       - '3000:3000'
@@ -15,20 +12,47 @@ services:
       - '$PWD/grafana/data:/var/lib/grafana'
     networks:
       - my-network
+    depends_on:
+      - mysql
 
   nginx:
     container_name: nginx
     build: 
       context: ./nginx
-      args:
-        HTTP_PROXY: ${HTTP_PROXY}
-        NO_PROXY: ${NO_PROXY}
     ports:
       - "80:80"
     volumes:
       - '$PWD/nginx/html:/usr/share/nginx/html'
     networks:
       - my-network
+  
+  mysql:
+    image: 'mysql/mysql-server:8.0'
+    ports:
+      - '${DB_PORT:-3306}:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_DATABASE: '${DB_DATABASE}'
+      MYSQL_USER: '${DB_USERNAME}'
+      MYSQL_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    volumes:
+      - 'mysql:/var/lib/mysql'
+    networks:
+      - my-network
+    healthcheck:
+      test:
+        - CMD
+        - mysqladmin
+        - ping
+        - '-p${DB_PASSWORD}'
+      retries: 3
+      timeout: 5s
+
 
 networks:
   my-network:
+volumes:
+    mysql:
+        driver: local
